@@ -1,0 +1,26 @@
+{
+  "name": "sibyl",
+  "version": "1.0.0",
+  "description": "A telegram bot to establish rules and measure crime coefficient.",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --experimental-modules index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HelloWorld017/sibyl.git"
+  },
+  "keywords": [
+    "Telegram"
+  ],
+  "author": "Khinenw",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HelloWorld017/sibyl/issues"
+  },
+  "homepage": "https://github.com/HelloWorld017/sibyl#readme",
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
+}

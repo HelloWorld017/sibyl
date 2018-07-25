@@ -37,6 +37,33 @@ class Rule {
 	removeRule() {
 		this.chat.rules.splice(this.chat.rules.indexOf(this), 1);
 	}
+
+	get exportData() {
+		return {
+			ruleId: this.ruleId,
+			chatId: this.chat.id,
+			messageType: this.messageType,
+			description: this.description,
+			coefficient: this.coefficient,
+			action: this.action
+		};
+	}
+
+	get readableContent() {
+		return `${this.messageType} <code>${this.description}</code>의 메시지가 발견될 시,\n` +
+		`<code>${this.coefficient}</code>만큼의 범죄계수 증가 및 <code>${this.action}</code> 조치`;
+	}
+
+	static importFrom(bot, exportData) {
+		return new Rule(
+			exportData.ruleId,
+			bot.getChat(exportData.chatId),
+			exportData.messageType,
+			exportData.description,
+			exportData.coefficient,
+			exportData.action
+		);
+	}
 }
 
 export default Rule;

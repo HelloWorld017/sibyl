@@ -5,40 +5,44 @@ class Command {
 		this.argTypes = argTypes;
 	}
 
-	isStatementCommand(statement) {
-		if(statement.startsWith(`!${this.commandName}`)) return true;
-		return false;
+	isStatementCommand(update) {
+		if(!update.message || !update.message.text) return false;
+		return update.message.text.startsWith(`!${this.commandName}`);
 	}
 
-	sendHelpMessage(userId) {
-		const argList = this.argTypes.map(v => v.getShape()).join(' ');
+	sendHelpMessage(userId, prefix='') {
+		const argList = this.argTypes.map(v => this.bot.types[v].getInformation()).join(' ');
 		const descriptions = this.getArgsDescription();
 
-		let helpMessage = `!${this.commandName} ${argList}<br>`;
-		helpMessage += `<i>${this.getDescription()}</i><br><br>`;
+		let helpMessage = prefix;
+		helpMessage += `!${this.commandName} ${argList}\n`;
+		helpMessage += `<i>${this.getDescription()}</i>\n\n`;
 		helpMessage += Object.keys(descriptions)
-			.map(k => `<code>${this.bot.types[k]}</code>: ${descriptions[k]}<br>`);
+			.map(k => `<code>${this.bot.types[k].name}</code>: ${descriptions[k]}\n`).join('');
 
 		this.bot.sendHtml(helpMessage, userId);
 	}
 
-	execute(args, message) {
-		const argsList = args.slice(2 + this.commandName.length).split(' ');
-		if(argsList.length !== this.argTypes.length) {
-			this.sendHelpMessage(message.chat.id);
+	async execute({message}) {
+		const {text} = message;
+		const argsList = text.slice(2 + this.commandName.length).split(' ').filter(v => v.length);
+
+		if(this.strictLen && argsList.length !== this.argTypes.length) {
+			this.sendHelpMessage(message.chat.id, '잘못된 사용법: \n\n');
 			return;
 		}
 
 		let lastError = null;
-
 		const parsedArgs = argsList.reduce((parsed, arg, i) => {
 			if(lastError) return;
 
 			const argType = this.argTypes[i];
+			let chunk;
 			try {
-				const chunk = this.bot.types[argType].parse(arg, this.bot.types);
+				chunk = this.bot.types[argType].parse(this.bot.types, arg);
 			} catch(e) {
 				lastError = e;
+				return;
 			}
 
 			Object.keys(chunk).forEach(k => parsed[k] = chunk[k]);
@@ -50,13 +54,26 @@ class Command {
 			return;
 		}
 
-		this.doExecute(parsedArgs, message);
+		try {
+			await this.doExecute(parsedArgs, message);
+		} catch(e) {
+			console.error(e);
+			await this.bot.sendHtml('명령어 처리 중 오류가 발생하였습니다. : ' + e.message, message.chat.id);
+		}
 	}
 
 	doExecute(parsedArgs, message) {}
 
 	getArgsDescription() {
 		return {};
+	}
+
+	get listed() {
+		return true;
+	}
+
+	get strictLen() {
+		return true;
 	}
 }
 

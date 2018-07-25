@@ -1,6 +1,9 @@
+import Rule from "./Rule";
+
 class Vote {
 	constructor(rule, chat, voteId, isDeleteVote) {
 		this.rule = rule;
+		this.chat = chat;
 		this.chatId = chat.id;
 		this.voteId = voteId;
 		this.bot = chat.bot;
@@ -9,6 +12,7 @@ class Vote {
 		this.voteStatus = [];
 		this.isDeleteVote = isDeleteVote;
 		this.tempRuleAdded = false;
+		this.finishCalled = false;
 
 		this.startDate = Date.now();
 		this.endDate = Date.now() + 60 * 60 * 1000;
@@ -25,10 +29,10 @@ class Vote {
 		this.message = await this.createVoteMessage();
 	}
 
-	async vote(query) {
+	async vote(parsedArgs, query) {
 		if(this.finished) return;
 		if(!this.administrators) return;
-		if(!query.data || !query.from) return;
+		if(!query.from) return;
 
 		const chatMember = this.administrators.find(v => v.user.id === query.from.id);
 		const isVoted = this.voteStatus.findIndex(v => v.userId === query.from.id);
@@ -39,7 +43,7 @@ class Vote {
 			this.voteStatus.splice(isVoted, 1);
 		}
 
-		const result = query.data.split(':')[1] === 'true';
+		const result = parsedArgs['VoteResult'] === 'true';
 		const readableResult = result ? '찬성' : '반대';
 		this.voteStatus.push({
 			userId: query.from.id,
@@ -51,17 +55,21 @@ class Vote {
 			text: changed ? `${readableResult}(으)로 의견을 바꾸셨습니다.` : `${readableResult}에 투표하셨습니다.`
 		});
 
-		this.updateVoteMessage();
+		if(this.voteStatus.length === this.administrators.length) {
+			this.finishVote();
+		}
+
+		await this.updateVoteMessage();
 	}
 
 	async createVoteMessage() {
-		const message = await this.bot.sendHtml(this.getVoteDescriptor());
+		const message = await this.bot.fetch('sendMessage', this.getVoteDescriptor());
+		this.message = message.message_id;
 		return message.message_id;
 	}
 
 	async updateVoteMessage() {
 		const descriptor = this.getVoteDescriptor();
-		descriptor.chat_id = this.chatId;
 		descriptor.message_id = this.message;
 
 		await this.bot.fetch('editMessageText', descriptor);
@@ -72,17 +80,17 @@ class Vote {
 		const graph = '\u2705'.repeat(Math.round(this.agree / this.voteStatus.length * 10)) +
 			'\u{1F6D1}'.repeat(Math.round(this.disagree / this.voteStatus.length * 10));
 
-		const text = `투표 #${this.voteId}<br><br>` +
-			`안건: ${this.getReadableContent()}<br><br>` +
-			`종료 시간: ${this.getReadableEnd()}<br><br>` +
-			`투표 현황: 찬성 ${this.agree}, 반대 ${this.disagree}, 남은 필요 참가 인원 ${left}<br>` +
-			`\u{1F44D} ${graph} \u{1F44E}<br><br>`;
+		let text = `투표 #${this.voteId}\n\n` +
+			`안건: ${this.readableContent}\n\n` +
+			`종료 시간: ${this.readableEnd}\n\n` +
+			`투표 현황: 찬성 ${this.agree}, 반대 ${this.disagree}, 남은 필요 참가 인원 ${left}\n` +
+			`\u{1F44D} ${graph} \u{1F44E}\n\n`;
 
 		if(this.finished) {
 			text += '가결되었습니다.';
 
 		} else {
-			text += `이 방의 관리자 ${this.needed}명 이상이 참가하여, 이 중 과반수의 득표를 얻을 시 가결됩니다.<br>`;
+			text += `이 방의 관리자 ${this.needed}명 이상이 참가하여, 이 중 과반수의 득표를 얻을 시 가결됩니다.\n`;
 
 			if(this.tempRuleAdded) {
 				text += `또한, 1시간 동안 범죄계수 증가 없이 가처분이 시행됩니다.`;
@@ -92,29 +100,31 @@ class Vote {
 		return {
 			text,
 			parse_mode: 'HTML',
-			reply_markup: JSON.stringify([
-				[
-					{
-						text: '찬성',
-						callback_data: 'true'
-					},
+			chat_id: this.chatId,
+			reply_markup: {
+				inline_keyboard: [
+					[
+						{
+							text: '찬성',
+							callback_data: `투표:${this.voteId}:true`
+						},
 
-					{
-						text: '반대',
-						callback_data: 'false'
-					}
+						{
+							text: '반대',
+							callback_data: `투표:${this.voteId}:false`
+						}
+					]
 				]
-			])
+			}
 		};
 	}
 
-	getReadableEnd() {
+	get readableEnd() {
 		return new Date(this.endDate).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'});
 	}
 
-	getReadableContent() {
-		let content = `${this.rule.messageType} <code>${this.rule.description}</code>의 메시지가 발견될 시,<br>` +
-		`<code>${this.rule.coefficient}</code>만큼의 범죄계수 증가 및 <code>${this.rule.action}</code> 조치`;
+	get readableContent() {
+		let content = this.rule.readableContent;
 
 		if(this.isDeleteVote) {
 			content = '<i>삭제:</i> ' + content;
@@ -124,13 +134,15 @@ class Vote {
 	}
 
 	finishVote() {
+		if(this.finishCalled) return;
+		this.finishCalled = true;
 		if(this.isPassable) {
 			if(this.isDeleteVote)
 				this.rule.makeRule();
 
 			else this.rule.removeRule();
 		}
-		
+
 		this.chat.removeVote(this);
 	}
 
@@ -148,6 +160,47 @@ class Vote {
 
 	get isPassable() {
 		return this.voteStatus.length >= this.needed && this.agree >= this.disagree;
+	}
+
+	get exportData() {
+		return {
+			rule: this.rule.exportData,
+			isDeleteVote: this.isDeleteVote,
+			chatId: this.chatId,
+			voteId: this.voteId,
+			startDate: this.startDate,
+			endDate: this.endDate,
+			voteStatus: this.voteStatus,
+			needed: this.needed,
+			administrators: this.administrators,
+			tempRuleAdded: this.tempRuleAdded,
+			message: this.message,
+			finishCalled: this.finishCalled
+		};
+	}
+
+	static async importFrom(bot, exportData) {
+		let vote = new Vote(
+			Rule.importFrom(bot, exportData.rule),
+			bot.getChat(exportData.chatId),
+			exportData.voteId,
+			exportData.isDeleteVote
+		);
+
+		vote.administrators = exportData.administrators;
+		vote.needed = exportData.needed;
+		vote.tempRuleAdded = exportData.tempRuleAdded;
+		vote.message = exportData.message;
+		vote.finishCalled = exportData.finishCalled;
+		await vote.updateVoteMessage();
+
+		if(vote.finished && !vote.finishCalled) {
+			vote.finishVote();
+		} else {
+			setTimeout(() => vote.finishVote(), vote.endDate - Date.now());
+		}
+
+		return vote;
 	}
 }
 

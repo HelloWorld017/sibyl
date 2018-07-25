@@ -10,11 +10,13 @@ class TypeCondition extends Type {
 
 		const split = text.split(':');
 		if(split.length !== 2)
-			throw new Error("조건은 다음과 같은 형식이어야 합니다:<br><code>타입:세부사항</code>");
+			throw new Error("조건은 다음과 같은 형식이어야 합니다:\n<code>타입:세부사항</code>");
 
 		return {
-			MessageType: MessageType.parse(split[0]),
-			Description: Description.parse(split[1])
+			Condition: {
+				MessageType: MessageType.parse(types, split[0]).MessageType,
+				Description: Description.parse(types, split[1]).Description
+			}
 		};
 	}
 

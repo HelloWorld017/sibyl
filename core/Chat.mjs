@@ -1,3 +1,9 @@
+import fs from "fs";
+import path from "path";
+import util from "util";
+import Rule from "./Rule";
+import Vote from "./Vote";
+
 class Chat {
 	constructor(bot, chatId) {
 		this.bot = bot;
@@ -13,7 +19,7 @@ class Chat {
 	}
 
 	async getAdministrators() {
-		return await this.bot.fetch('getChatAdministrators', {chatId: this.id});
+		return this.bot.fetch('getChatAdministrators', {chat_id: this.id});
 	}
 
 	addRule(rule) {
@@ -65,7 +71,7 @@ class Chat {
 			if(v.test(message)) {
 				if(!this.users[message.from.id])
 					this.users[message.from.id] = {
-						coefficient: 0;
+						coefficient: 0
 					};
 
 				this.users[message.from.id].coefficient += v.coefficient;
@@ -90,12 +96,39 @@ class Chat {
 		}
 	}
 
-	save() {
+	async save() {
+		const exportData = {
+			votes: this.votes.map(v => v.exportData),
+			rules: this.rules.map(v => v.exportData),
+			tempRules: this.tempRules.map(v => v.exportData),
+			noTemp: this.noTemp.map(v => v.exportData),
+			maxVoteId: this.maxVoteId,
+			users: this.users,
+			id: this.id
+		};
 
+		const writeFile = util.promisify(fs.writeFile);
+		await writeFile(path.resolve(this.bot.basePath, 'chats', `${chatId}.json`), JSON.stringify(exportData));
 	}
 
-	static loadFrom(file) {
+	static async loadFrom(bot, chatId) {
+		const readFile = util.promisify(fs.readFile);
+		const exportData = JSON.stringify(
+			await readFile(path.resolve(this.bot.basePath, 'chats', `${chatId}.json`), 'utf8')
+		);
 
+		const chat = new Chat(bot, chatId);
+		chat.maxVoteId = exportData.maxVoteId;
+		chat.rules = exportData.rules.map(v => Rule.importFrom(bot, v));
+		chat.tempRules = exportData.tempRules.map(v => Rule.importFrom(bot, v));
+		chat.noTemp = exportData.noTemp.map(v => Rule.importFrom(bot, v));
+		chat.users = exportData.users;
+
+		for(let vote of exportData.votes) {
+			chat.votes.push(await Vote.importFrom(bot, vote));
+		}
+
+		return chat;
 	}
 }
 
