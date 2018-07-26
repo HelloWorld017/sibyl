@@ -23,12 +23,12 @@ class Bot {
 	async loadBot() {
 		const chats = await util.promisify(fs.readdir)(path.resolve(this.basePath, 'chats'));
 
-		chats.forEach(v => {
-			if(!v.endsWith('.json')) return;
+		for(let v of chats) {
+			if(!v.endsWith('.json')) continue
 
 			const chatId = parseInt(v.slice(0, -5));
-			this.chats[chatId] = Chat.loadFrom(chatId);
-		});
+			this.chats[chatId] = await Chat.loadFrom(this, chatId);
+		}
 	}
 
 	async fetch(target, options) {
@@ -61,9 +61,12 @@ class Bot {
 
 	async update(update) {
 		const command = this.commands.find(command => command.isStatementCommand(update));
-		if(!command) return;
-
-		await command.execute(update);
+		if(command) {
+			await command.execute(update);
+		} else if(update.message) {
+			const chat = this.getChat(update.message.chat.id);
+			await chat.handle(update.message);
+		}
 	}
 }
 

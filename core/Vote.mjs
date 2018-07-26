@@ -30,7 +30,7 @@ class Vote {
 	}
 
 	async vote(parsedArgs, query) {
-		if(this.finished) return;
+		if(this.finishCalled) return;
 		if(!this.administrators) return;
 		if(!query.from) return;
 
@@ -56,7 +56,7 @@ class Vote {
 		});
 
 		if(this.voteStatus.length === this.administrators.length) {
-			this.finishVote();
+			await this.finishVote();
 		}
 
 		await this.updateVoteMessage();
@@ -86,8 +86,12 @@ class Vote {
 			`투표 현황: 찬성 ${this.agree}, 반대 ${this.disagree}, 남은 필요 참가 인원 ${left}\n` +
 			`\u{1F44D} ${graph} \u{1F44E}\n\n`;
 
-		if(this.finished) {
-			text += '가결되었습니다.';
+		if(this.finishCalled) {
+			if(this.isPassable)
+				text += '가결되었습니다.';
+
+			else
+				text += '부결되었습니다.';
 
 		} else {
 			text += `이 방의 관리자 ${this.needed}명 이상이 참가하여, 이 중 과반수의 득표를 얻을 시 가결됩니다.\n`;
@@ -133,17 +137,18 @@ class Vote {
 		return content;
 	}
 
-	finishVote() {
+	async finishVote() {
 		if(this.finishCalled) return;
 		this.finishCalled = true;
 		if(this.isPassable) {
-			if(this.isDeleteVote)
+			if(!this.isDeleteVote) {
 				this.rule.makeRule();
-
-			else this.rule.removeRule();
+			} else {
+				this.rule.removeRule();
+			}
 		}
 
-		this.chat.removeVote(this);
+		await this.chat.removeVote(this);
 	}
 
 	get finished() {
@@ -195,7 +200,7 @@ class Vote {
 		await vote.updateVoteMessage();
 
 		if(vote.finished && !vote.finishCalled) {
-			vote.finishVote();
+			await vote.finishVote();
 		} else {
 			setTimeout(() => vote.finishVote(), vote.endDate - Date.now());
 		}

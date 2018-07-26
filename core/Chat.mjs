@@ -24,7 +24,6 @@ class Chat {
 
 	addRule(rule) {
 		this.rules.push(rule);
-		this.save();
 	}
 
 	async createVote(rule, isDeleteVote) {
@@ -32,6 +31,7 @@ class Chat {
 		await vote.init();
 
 		this.votes.push(vote);
+		await this.save();
 	}
 
 	findRule(target) {
@@ -49,11 +49,12 @@ class Chat {
 		return this.votes.find(({rule}) => finder(rule));
 	}
 
-	removeVote(vote) {
+	async removeVote(vote) {
 		this.votes.splice(this.votes.indexOf(vote), 1);
 		if(vote.tempRuleAdded) {
 			this.tempRules.splice(this.tempRules.indexOf(vote.rule), 1);
 		}
+		await this.save();
 	}
 
 	addTempRule(rule) {
@@ -108,13 +109,13 @@ class Chat {
 		};
 
 		const writeFile = util.promisify(fs.writeFile);
-		await writeFile(path.resolve(this.bot.basePath, 'chats', `${chatId}.json`), JSON.stringify(exportData));
+		await writeFile(path.resolve(this.bot.basePath, 'chats', `${this.id}.json`), JSON.stringify(exportData));
 	}
 
 	static async loadFrom(bot, chatId) {
 		const readFile = util.promisify(fs.readFile);
-		const exportData = JSON.stringify(
-			await readFile(path.resolve(this.bot.basePath, 'chats', `${chatId}.json`), 'utf8')
+		const exportData = JSON.parse(
+			await readFile(path.resolve(bot.basePath, 'chats', `${chatId}.json`), 'utf8')
 		);
 
 		const chat = new Chat(bot, chatId);
