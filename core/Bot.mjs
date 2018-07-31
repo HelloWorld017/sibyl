@@ -9,13 +9,14 @@ import util from "util";
 import Chat from "./Chat";
 
 class Bot {
-	constructor(token) {
+	constructor(config) {
 		this.chats = {};
 		this.types = types;
 		this.commands = commands(this);
 		this.basePath = path.resolve('.', 'data');
+		this.config = config;
 
-		axios.defaults.baseURL = `https://api.telegram.org/bot${token}/`;
+		axios.defaults.baseURL = `https://api.telegram.org/bot${config.token}/`;
 		axios.defaults.headers.common['User-Agent'] = `Sibyl ${packageInfo.version}`;
 		axios.defaults.headers.post['Content-Type'] = 'application/json';
 	}

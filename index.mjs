@@ -21,7 +21,7 @@ import Bot from "./core/Bot";
 		return;
 	}
 
-	const bot = new Bot(config.token);
+	const bot = new Bot(config);
 	await bot.loadBot();
 
 	await bot.fetch('setWebhook', {

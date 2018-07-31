@@ -26,7 +26,7 @@ class CommandHelp extends Command {
 			helpMessage += `<i>${command.getDescription()}</i>\n\n`;
 		});
 
-		this.bot.sendHtml(helpMessage, message.chat.id);
+		await this.bot.sendHtml(helpMessage, message.chat.id);
 	}
 
 	getDescription() {

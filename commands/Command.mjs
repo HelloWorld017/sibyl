@@ -7,7 +7,8 @@ class Command {
 
 	isStatementCommand(update) {
 		if(!update.message || !update.message.text) return false;
-		return update.message.text.startsWith(`!${this.commandName}`);
+		return update.message.text.startsWith(`!${this.commandName} `) ||
+			update.message.text === `!${this.commandName}`;
 	}
 
 	sendHelpMessage(userId, prefix='') {

@@ -19,7 +19,7 @@ class Chat {
 	}
 
 	async getAdministrators() {
-		return this.bot.fetch('getChatAdministrators', {chat_id: this.id});
+		return (await this.bot.fetch('getChatAdministrators', {chat_id: this.id})).filter(v => !v.user.is_bot);
 	}
 
 	addRule(rule) {
@@ -67,26 +67,32 @@ class Chat {
 
 	async handle(message) {
 		let deleteMsg = false;
+		let ruleHandled = false;
 
-		const handleRule = v => {
+		const handleRule = isTempRule => v => {
 			if(v.test(message)) {
 				if(!this.users[message.from.id])
 					this.users[message.from.id] = {
-						coefficient: 0
+						coefficient: 0,
+						username: message.from.username,
+						first_name: message.from.first_name,
+						last_name: message.from.last_name
 					};
 
-				this.users[message.from.id].coefficient += v.coefficient;
+				if(!isTempRule) this.users[message.from.id].coefficient += v.coefficient;
 				if(v.action === '삭제') deleteMsg = true;
+
+				ruleHandled = true;
 			}
 		};
 
-		this.tempRules.forEach(handleRule);
+		this.tempRules.forEach(handleRule(true));
 		this.rules.forEach(v => {
 			if(this.tempRules.some(this.ruleFinder(v))) {
 				return;
 			}
 
-			handleRule(v);
+			handleRule(false)(v);
 		});
 
 		if(deleteMsg) {
@@ -94,6 +100,10 @@ class Chat {
 				chat_id: this.id,
 				message_id: message.message_id
 			});
+		}
+
+		if(ruleHandled) {
+			await this.save();
 		}
 	}
 
@@ -109,7 +119,10 @@ class Chat {
 		};
 
 		const writeFile = util.promisify(fs.writeFile);
-		await writeFile(path.resolve(this.bot.basePath, 'chats', `${this.id}.json`), JSON.stringify(exportData));
+		await writeFile(
+			path.resolve(this.bot.basePath, 'chats', `${this.id}.json`),
+			JSON.stringify(exportData, null, '\t')
+		);
 	}
 
 	static async loadFrom(bot, chatId) {

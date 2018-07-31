@@ -9,7 +9,7 @@ class Rule {
 	}
 
 	test(message) {
-		if(message.chat.id !== this.chatId) return;
+		if(message.chat.id !== this.chat.id) return;
 
 		switch(this.messageType) {
 			case '스티커':
@@ -36,6 +36,7 @@ class Rule {
 
 	removeRule() {
 		this.chat.rules.splice(this.chat.rules.indexOf(this), 1);
+		this.chat.save();
 	}
 
 	get exportData() {

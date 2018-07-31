@@ -21,7 +21,7 @@ class Vote {
 	async init() {
 		this.administrators = await this.chat.getAdministrators();
 		this.needed = Math.ceil(this.administrators.length / 2);
-		if(!this.isDeleteVote)
+		if(!this.isDeleteVote && !this.bot.config.no_temp_rule)
 			this.tempRuleAdded = this.chat.addTempRule(this.rule);
 
 		setTimeout(() => this.finishVote(), 60 * 60 * 1000);
@@ -72,7 +72,20 @@ class Vote {
 		const descriptor = this.getVoteDescriptor();
 		descriptor.message_id = this.message;
 
-		await this.bot.fetch('editMessageText', descriptor);
+		try {
+			await this.bot.fetch('editMessageText', descriptor);
+		} catch(e) {
+			// Bypass error because of rapid message edit
+		}
+	}
+
+	async createNewVoteMessage() {
+		await this.bot.fetch('deleteMessage', {
+			chat_id: this.chat.id,
+			message_id: this.message_id
+		});
+
+		await this.createVoteMessage();
 	}
 
 	getVoteDescriptor() {
@@ -80,7 +93,7 @@ class Vote {
 		const graph = '\u2705'.repeat(Math.round(this.agree / this.voteStatus.length * 10)) +
 			'\u{1F6D1}'.repeat(Math.round(this.disagree / this.voteStatus.length * 10));
 
-		let text = `투표 #${this.voteId}\n\n` +
+		let text = `#투표 #${this.voteId}\n\n` +
 			`안건: ${this.readableContent}\n\n` +
 			`종료 시간: ${this.readableEnd}\n\n` +
 			`투표 현황: 찬성 ${this.agree}, 반대 ${this.disagree}, 남은 필요 참가 인원 ${left}\n` +
@@ -101,11 +114,14 @@ class Vote {
 			}
 		}
 
-		return {
+		const descriptor = {
 			text,
 			parse_mode: 'HTML',
 			chat_id: this.chatId,
-			reply_markup: {
+		};
+
+		if(!this.finishCalled) {
+			descriptor.reply_markup = {
 				inline_keyboard: [
 					[
 						{
@@ -119,8 +135,10 @@ class Vote {
 						}
 					]
 				]
-			}
-		};
+			};
+		}
+
+		return descriptor;
 	}
 
 	get readableEnd() {
