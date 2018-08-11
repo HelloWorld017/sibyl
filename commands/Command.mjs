@@ -7,8 +7,11 @@ class Command {
 
 	isStatementCommand(update) {
 		if(!update.message || !update.message.text) return false;
-		return update.message.text.startsWith(`!${this.commandName} `) ||
-			update.message.text === `!${this.commandName}`;
+
+		return this.aliases.concat(this.commandName).some(v => {
+			return update.message.text.startsWith(`!${v} `) ||
+				update.message.text === `!${v}`;
+		});
 	}
 
 	sendHelpMessage(userId, prefix='') {
@@ -75,6 +78,10 @@ class Command {
 
 	get strictLen() {
 		return true;
+	}
+
+	get aliases() {
+		return [];
 	}
 }
 

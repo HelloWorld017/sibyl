@@ -5,7 +5,7 @@ class CommandGetVotes extends Command {
 		super(bot, "투표", []);
 	}
 
-	async doExecute({MessageType, RuleId}, message) {
+	async doExecute(_, message) {
 		const chat = this.bot.getChat(message.chat.id);
 		const votes = chat.votes.map(v => `<i>#${v.voteId}</i>\n ${v.readableContent}\n\n`).join('');
 		const reply = [[]];
@@ -39,6 +39,10 @@ class CommandGetVotes extends Command {
 
 	getArgsDescription() {
 		return {};
+	}
+
+	get aliases() {
+		return ['투표목록'];
 	}
 }
 

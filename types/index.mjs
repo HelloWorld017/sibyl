@@ -14,5 +14,6 @@ export default {
 	RuleId: new TypeUInteger('RuleId', '규칙ID'),
 	VoteId: new TypeUInteger('VoteId', '투표ID'),
 	VoteResult: new TypeEnum('VoteResult', '투표선택', ['true', 'false']),
-	CommandName: new TypeString('CommandName', '명령어')
+	CommandName: new TypeString('CommandName', '명령어'),
+	Query: new TypeString('Query', '검색할 내용')
 };

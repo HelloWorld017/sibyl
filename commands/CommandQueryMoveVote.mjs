@@ -10,8 +10,18 @@ class CommandQueryMoveVote extends CommandQuery {
 		const vote = chat.votes.find(v => v.voteId === VoteId);
 		if(!vote) return;
 
-		await this.bot.sendHtml()
-		vote.vote(parsedArgs, callback_query);
+		await this.bot.fetch('sendMessage', {
+			text: `투표 #${vote.voteId}`,
+			reply_to_message_id: vote.message,
+			reply_markup: {
+				inline_keyboard: [
+					[{
+						text: '투표 메시지 생성',
+						callback_data: `투표새로고침:${vote.voteId}`
+					}]
+				]
+			}
+		});
 	}
 }
 

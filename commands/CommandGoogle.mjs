@@ -2,10 +2,10 @@ import Command from "./Command";
 
 class CommandGetRule extends Command {
 	constructor(bot) {
-		super(bot, "규칙", []);
+		super(bot, "구글", []);
 	}
 
-	async doExecute(_, message) {
+	async doExecute({Query}, message) {
 		const chat = this.bot.getChat(message.chat.id);
 		const rules = chat.rules.map(v => `<i>#${v.ruleId}</i>\n ${v.readableContent}\n\n`).join('');
 
@@ -13,7 +13,7 @@ class CommandGetRule extends Command {
 	}
 
 	getDescription() {
-		return '규칙의 목록을 불러옵니다.';
+		return '구글 검색을 합니다.';
 	}
 
 	getArgsDescription() {
@@ -21,7 +21,7 @@ class CommandGetRule extends Command {
 	}
 
 	get aliases() {
-		return ['규칙목록'];
+		return ['!'];
 	}
 }
 

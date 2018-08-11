@@ -80,10 +80,14 @@ class Vote {
 	}
 
 	async createNewVoteMessage() {
-		await this.bot.fetch('deleteMessage', {
-			chat_id: this.chat.id,
-			message_id: this.message_id
-		});
+		try {
+			await this.bot.fetch('deleteMessage', {
+				chat_id: this.chat.id,
+				message_id: this.message_id
+			});
+		} catch(e) {
+			
+		}
 
 		await this.createVoteMessage();
 	}
