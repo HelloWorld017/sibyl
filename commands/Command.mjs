@@ -1,3 +1,8 @@
+const findCommand = message => v => {
+	return message.startsWith(`!${v} `) ||
+		message === `!${v}`;
+}
+
 class Command {
 	constructor(bot, commandName, argTypes) {
 		this.bot = bot;
@@ -8,10 +13,7 @@ class Command {
 	isStatementCommand(update) {
 		if(!update.message || !update.message.text) return false;
 
-		return this.aliases.concat(this.commandName).some(v => {
-			return update.message.text.startsWith(`!${v} `) ||
-				update.message.text === `!${v}`;
-		});
+		return this.commandNames.some(findCommand(update.message.text));
 	}
 
 	sendHelpMessage(userId, prefix='') {
@@ -20,6 +22,7 @@ class Command {
 
 		let helpMessage = prefix;
 		helpMessage += `!${this.commandName} ${argList}\n`;
+		helpMessage += this.aliases.length > 0 ? `(${this.aliases.map(v => `!${v}`).join(', ')})` : ':';
 		helpMessage += `<i>${this.getDescription()}</i>\n\n`;
 		helpMessage += Object.keys(descriptions)
 			.map(k => `<code>${this.bot.types[k].name}</code>: ${descriptions[k]}\n`).join('');
@@ -29,7 +32,9 @@ class Command {
 
 	async execute({message}) {
 		const {text} = message;
-		const argsList = text.slice(2 + this.commandName.length).split(' ').filter(v => v.length);
+		const commandName = this.commandNames.find(findCommand(text));
+		const rawArgs = text.slice(2 + commandName.length);
+		const argsList = rawArgs.split(' ').filter(v => v.length);
 
 		if(this.strictLen && argsList.length !== this.argTypes.length) {
 			this.sendHelpMessage(message.chat.id, '잘못된 사용법: \n\n');
@@ -41,6 +46,8 @@ class Command {
 			if(lastError) return;
 
 			const argType = this.argTypes[i];
+			if(!this.bot.types[argType]) return parsed;
+			
 			let chunk;
 			try {
 				chunk = this.bot.types[argType].parse(this.bot.types, arg);
@@ -54,12 +61,12 @@ class Command {
 		}, {});
 
 		if(lastError) {
-			this.bot.sendHtml(lastError.message, message.chat.id);
+			this.bot.sendHtml('명령어 처리 중 오류가 발생하였습니다. : ' + lastError.message, message.chat.id);
 			return;
 		}
 
 		try {
-			await this.doExecute(parsedArgs, message);
+			await this.doExecute(parsedArgs, message, rawArgs);
 		} catch(e) {
 			console.error(e);
 			await this.bot.sendHtml('명령어 처리 중 오류가 발생하였습니다. : ' + e.message, message.chat.id);
@@ -82,6 +89,10 @@ class Command {
 
 	get aliases() {
 		return [];
+	}
+
+	get commandNames() {
+		return this.aliases.concat(this.commandName);
 	}
 }
 

@@ -7,7 +7,7 @@ class CommandDeleteRule extends Command {
 		]);
 	}
 
-	async doExecute({MessageType, RuleId}, message) {
+	async doExecute({RuleId}, message) {
 		const chat = this.bot.getChat(message.chat.id);
 
 		const rule = chat.rules.find(v => v.ruleId === RuleId);

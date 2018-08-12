@@ -2,6 +2,8 @@ import CommandCreateRule from "./CommandCreateRule";
 import CommandDeleteRule from "./CommandDeleteRule";
 import CommandGetRule from "./CommandGetRule";
 import CommandGetVotes from "./CommandGetVotes";
+import CommandGoogle from "./CommandGoogle";
+import CommandGoogleImage from "./CommandGoogleImage";
 import CommandHelp from "./CommandHelp";
 import CommandInfo from "./CommandInfo";
 import CommandQueryVote from "./CommandQueryVote";
@@ -13,6 +15,8 @@ export default bot => [
 	CommandDeleteRule,
 	CommandGetRule,
 	CommandGetVotes,
+	CommandGoogle,
+	CommandGoogleImage,
 	CommandHelp,
 	CommandInfo,
 	CommandQueryVote,

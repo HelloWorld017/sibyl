@@ -1,15 +1,38 @@
+import axios from "axios";
 import Command from "./Command";
 
-class CommandGetRule extends Command {
+class CommandGoogle extends Command {
 	constructor(bot) {
-		super(bot, "구글", []);
+		super(bot, "구글", ['Query']);
 	}
 
-	async doExecute({Query}, message) {
-		const chat = this.bot.getChat(message.chat.id);
-		const rules = chat.rules.map(v => `<i>#${v.ruleId}</i>\n ${v.readableContent}\n\n`).join('');
+	async doExecute({}, message, rawQuery) {
+		const searchResponse = await axios.get(`https://content.googleapis.com/customsearch/v1` +
+			`?q=${encodeURIComponent(rawQuery)}` +
+			`&cx=${encodeURIComponent(this.bot.config.google.cx)}` +
+			`&key=${encodeURIComponent(this.bot.config.google.key)}` +
+			`&safe=off&num=3`);
 
-		await this.bot.sendHtml(`규칙목록\n\n ${rules}`, chat.id);
+		const searchResult = searchResponse.data;
+
+		if(!searchResult.queries) {
+			await this.bot.sendHtml("해당하는 검색결과를 찾지 못했습니다 :(", message.chat.id);
+			return;
+		}
+
+		const escapedQuery = rawQuery.replace('<', '&gt;').replace('>', '&lt;');
+
+		let result = `<a href="https://www.google.com/search?q=${encodeURIComponent(rawQuery)}">` +
+			`${escapedQuery}` +
+			`</a>에 대한 검색결과\n\n`;
+		result += searchResult.items.map(v => `<a href="${v.link}">${v.title}</a>\n${v.snippet}`).join('\n\n');
+
+		await this.bot.fetch('sendMessage', {
+			chat_id: message.chat.id,
+			text: result,
+			parse_mode: 'HTML',
+			disable_web_page_preview: true
+		});
 	}
 
 	getDescription() {
@@ -23,6 +46,10 @@ class CommandGetRule extends Command {
 	get aliases() {
 		return ['!'];
 	}
+
+	get strictLen() {
+		return false;
+	}
 }
 
-export default CommandGetRule;
+export default CommandGoogle;

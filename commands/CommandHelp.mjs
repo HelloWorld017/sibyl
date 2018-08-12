@@ -42,6 +42,10 @@ class CommandHelp extends Command {
 	get strictLen() {
 		return false;
 	}
+
+	get aliases() {
+		return ['도움말'];
+	}
 }
 
 export default CommandHelp;

@@ -16,9 +16,13 @@ class Bot {
 		this.basePath = path.resolve('.', 'data');
 		this.config = config;
 
-		axios.defaults.baseURL = `https://api.telegram.org/bot${config.token}/`;
-		axios.defaults.headers.common['User-Agent'] = `Sibyl ${packageInfo.version}`;
-		axios.defaults.headers.post['Content-Type'] = 'application/json';
+		this.axios = axios.create({
+			baseURL: `https://api.telegram.org/bot${config.token}/`,
+			headers: {
+				'User-Agent': `Sibyl ${packageInfo.version}`,
+				'Content-Type': 'application/json'
+			}
+		});
 	}
 
 	async loadBot() {
@@ -32,12 +36,17 @@ class Bot {
 		}
 	}
 
-	async fetch(target, options) {
+	async fetch(target, options, throwError=false) {
 		try {
-			const {data} = await axios.post(target, JSON.stringify(options));
+			const {data} = await this.axios.post(target, JSON.stringify(options));
 			return data ? data.result : '';
 		} catch(e) {
-			console.error(e);
+			if(!throwError) {
+				console.error(e);
+				return;
+			}
+
+			throw e;
 		}
 	}
 
