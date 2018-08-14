@@ -24,7 +24,7 @@ class CommandUser extends Command {
 	}
 
 	getDescription() {
-		return '스티커 정보를 불러옵니다.';
+		return '범죄계수 목록을 불려옵니다.';
 	}
 
 	getArgsDescription() {

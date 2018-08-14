@@ -13,6 +13,7 @@ class Chat {
 		this.users = {};
 		this.tempRules = [];
 		this.noTemp = [];
+		this.config = {};
 		this.maxVoteId = 0;
 		this.ruleFinder = target => rule =>
 			(rule.messageType === target.messageType && rule.description === target.description);
@@ -115,7 +116,8 @@ class Chat {
 			noTemp: this.noTemp.map(v => v.exportData),
 			maxVoteId: this.maxVoteId,
 			users: this.users,
-			id: this.id
+			id: this.id,
+			config: this.config
 		};
 
 		const writeFile = util.promisify(fs.writeFile);
@@ -137,6 +139,7 @@ class Chat {
 		chat.tempRules = exportData.tempRules.map(v => Rule.importFrom(bot, v));
 		chat.noTemp = exportData.noTemp.map(v => Rule.importFrom(bot, v));
 		chat.users = exportData.users;
+		chat.config = exportData.config;
 
 		for(let vote of exportData.votes) {
 			chat.votes.push(await Vote.importFrom(bot, vote));

@@ -15,5 +15,8 @@ export default {
 	VoteId: new TypeUInteger('VoteId', '투표ID'),
 	VoteResult: new TypeEnum('VoteResult', '투표선택', ['true', 'false']),
 	CommandName: new TypeString('CommandName', '명령어'),
-	Query: new TypeString('Query', '검색할 내용')
+	Query: new TypeString('Query', '검색할 내용'),
+	Location: new TypeString('Location', '시도명'),
+	School: new TypeString('School', '학교명'),
+	SchoolId: new TypeString('SchoolId', '학교ID')
 };

@@ -45,11 +45,13 @@ class CommandGoogleImage extends Command {
 	}
 
 	getDescription() {
-		return '구글 검색을 합니다.';
+		return '구글 이미지 검색을 합니다.';
 	}
 
 	getArgsDescription() {
-		return {};
+		return {
+			Query: '검색할 내용'
+		};
 	}
 
 	get aliases() {

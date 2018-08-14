@@ -22,7 +22,7 @@ class Command {
 
 		let helpMessage = prefix;
 		helpMessage += `!${this.commandName} ${argList}\n`;
-		helpMessage += this.aliases.length > 0 ? `(${this.aliases.map(v => `!${v}`).join(', ')})` : ':';
+		helpMessage += this.aliases.length > 0 ? `(${this.aliases.map(v => `!${v}`).join(', ')})\n` : '';
 		helpMessage += `<i>${this.getDescription()}</i>\n\n`;
 		helpMessage += Object.keys(descriptions)
 			.map(k => `<code>${this.bot.types[k].name}</code>: ${descriptions[k]}\n`).join('');
@@ -47,7 +47,7 @@ class Command {
 
 			const argType = this.argTypes[i];
 			if(!this.bot.types[argType]) return parsed;
-			
+
 			let chunk;
 			try {
 				chunk = this.bot.types[argType].parse(this.bot.types, arg);

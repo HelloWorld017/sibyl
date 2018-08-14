@@ -3,6 +3,7 @@ import commands from "../commands"
 import fs from "fs";
 import path from "path";
 import packageInfo from "../package.json";
+import timers from "../timers";
 import types from "../types";
 import util from "util";
 
@@ -13,6 +14,7 @@ class Bot {
 		this.chats = {};
 		this.types = types;
 		this.commands = commands(this);
+		this.timers = timers(this);
 		this.basePath = path.resolve('.', 'data');
 		this.config = config;
 
@@ -23,6 +25,8 @@ class Bot {
 				'Content-Type': 'application/json'
 			}
 		});
+
+		setInterval(() => this.timerTick(), 100);
 	}
 
 	async loadBot() {
@@ -67,6 +71,11 @@ class Bot {
 		this.chats[id] = new Chat(this, id);
 
 		return this.chats[id];
+	}
+
+	timerTick() {
+		const date = new Date;
+		this.timers.forEach(v => v.update(date));
 	}
 
 	async update(update) {

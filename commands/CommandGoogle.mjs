@@ -40,7 +40,9 @@ class CommandGoogle extends Command {
 	}
 
 	getArgsDescription() {
-		return {};
+		return {
+			Query: '검색할 내용'
+		};
 	}
 
 	get aliases() {
