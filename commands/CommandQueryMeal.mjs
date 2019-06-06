@@ -1,4 +1,4 @@
-import CommandQuery from "./CommandQuery";
+import CommandQuery from "./CommandQuery.mjs";
 
 class CommandQueryMeal extends CommandQuery {
 	constructor(bot) {

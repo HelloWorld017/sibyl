@@ -1,4 +1,4 @@
-import Command from "./Command";
+import Command from "./Command.mjs";
 
 class CommandHelp extends Command {
 	constructor(bot) {

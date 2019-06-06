@@ -1,4 +1,4 @@
-import TimerMeal from "./TimerMeal";
+import TimerMeal from "./TimerMeal.mjs";
 
 export default bot => [
 	TimerMeal

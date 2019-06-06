@@ -1,5 +1,5 @@
 import axios from "axios";
-import Command from "./Command";
+import Command from "./Command.mjs";
 
 class CommandGoogleImage extends Command {
 	constructor(bot) {

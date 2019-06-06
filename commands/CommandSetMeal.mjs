@@ -2,7 +2,7 @@ import axios from "axios";
 import calcium from "calcium";
 import util from "util";
 
-import Command from "./Command";
+import Command from "./Command.mjs";
 
 const findSchool = util.promisify(calcium.find);
 

@@ -1,4 +1,4 @@
-import Command from "./Command";
+import Command from "./Command.mjs";
 
 class CommandQuery extends Command {
 	isStatementCommand(update) {
@@ -11,7 +11,7 @@ class CommandQuery extends Command {
 	async execute({callback_query}) {
 		const {data} = callback_query;
 		const argsList = data.split(':').slice(1);
-		if(argsList.length !== this.argTypes.length) {
+		if(argsList.length !== this.argTypes.length && this.strictLen) {
 			return;
 		}
 
@@ -21,6 +21,8 @@ class CommandQuery extends Command {
 			if(lastError) return;
 
 			const argType = this.argTypes[i];
+			if(!argType && !this.strictLen) return parsed;
+
 			let chunk;
 			try {
 				chunk = this.bot.types[argType].parse(this.bot.types, arg);
@@ -37,7 +39,7 @@ class CommandQuery extends Command {
 			return;
 		}
 
-		await this.doExecute(parsedArgs, callback_query);
+		await this.doExecute(parsedArgs, callback_query, argsList.join(':'));
 	}
 
 	async doExecute(parsedArgs, callback_query) {}

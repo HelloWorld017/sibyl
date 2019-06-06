@@ -1,8 +1,8 @@
-import TypeCondition from "./TypeCondition";
-import TypeEnum from "./TypeEnum";
-import TypePenalty from "./TypePenalty";
-import TypeString from "./TypeString";
-import TypeUInteger from "./TypeUInteger";
+import TypeCondition from "./TypeCondition.mjs";
+import TypeEnum from "./TypeEnum.mjs";
+import TypePenalty from "./TypePenalty.mjs";
+import TypeString from "./TypeString.mjs";
+import TypeUInteger from "./TypeUInteger.mjs";
 
 export default {
 	Condition: new TypeCondition,
@@ -18,5 +18,7 @@ export default {
 	Query: new TypeString('Query', '검색할 내용'),
 	Location: new TypeString('Location', '시도명'),
 	School: new TypeString('School', '학교명'),
-	SchoolId: new TypeString('SchoolId', '학교ID')
+	SchoolId: new TypeString('SchoolId', '학교ID'),
+	Content: new TypeString('Content', '내용'),
+	People: new TypeUInteger('People', '최대인원')
 };

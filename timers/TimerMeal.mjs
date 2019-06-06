@@ -1,9 +1,11 @@
 import calcium from "calcium";
 import util from "util";
 
+import Timer from "./Timer.mjs";
+
 const getMeal = util.promisify(calcium.get);
 
-class TimerMeal {
+class TimerMeal extends Timer {
 	constructor(bot) {
 		super("Meal", bot);
 		this.called = 0;
@@ -24,9 +26,9 @@ class TimerMeal {
 		}
 	}
 
-	getMeal(date, type, typeName) {
+	async getMeal(date, type, typeName) {
 		this.called = Date.now();
-		
+
 		for (let chat of this.bot.chats) {
 			let meal;
 			try {

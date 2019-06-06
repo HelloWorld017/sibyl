@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import util from "util";
-import Rule from "./Rule";
-import Vote from "./Vote";
+import Rule from "./Rule.mjs";
+import Vote from "./Vote.mjs";
 
 class Chat {
 	constructor(bot, chatId) {

@@ -1,5 +1,5 @@
-import Command from "./Command";
-import Rule from "../core/Rule";
+import Command from "./Command.mjs";
+import Rule from "../core/Rule.mjs";
 
 class CommandCreateRule extends Command {
 	constructor(bot) {

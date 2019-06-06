@@ -1,4 +1,4 @@
-import Rule from "./Rule";
+import Rule from "./Rule.mjs";
 
 class Vote {
 	constructor(rule, chat, voteId, isDeleteVote) {
@@ -86,7 +86,7 @@ class Vote {
 				message_id: this.message_id
 			});
 		} catch(e) {
-			
+
 		}
 
 		await this.createVoteMessage();

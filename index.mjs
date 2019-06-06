@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import util from "util";
 
-import Bot from "./core/Bot";
+import Bot from "./core/Bot.mjs";
 
 (async () => {
 	const ensureExists = directory => util.promisify(fs.mkdir)(directory).catch(() => {});

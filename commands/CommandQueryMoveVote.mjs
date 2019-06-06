@@ -1,4 +1,4 @@
-import CommandQuery from "./CommandQuery";
+import CommandQuery from "./CommandQuery.mjs";
 
 class CommandQueryMoveVote extends CommandQuery {
 	constructor(bot) {

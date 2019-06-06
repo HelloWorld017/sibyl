@@ -1,13 +1,13 @@
 import axios from "axios";
-import commands from "../commands"
+import commands from "../commands/index.mjs"
 import fs from "fs";
 import path from "path";
 import packageInfo from "../package.json";
-import timers from "../timers";
-import types from "../types";
+import timers from "../timers/index.mjs";
+import types from "../types/index.mjs";
 import util from "util";
 
-import Chat from "./Chat";
+import Chat from "./Chat.mjs";
 
 class Bot {
 	constructor(config) {

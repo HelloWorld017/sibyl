@@ -1,4 +1,4 @@
-import Type from "./Type";
+import Type from "./Type.mjs";
 
 class TypeString extends Type {
 	constructor(typeId, typeName) {

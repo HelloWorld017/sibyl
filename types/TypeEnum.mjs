@@ -1,4 +1,4 @@
-import Type from "./Type";
+import Type from "./Type.mjs";
 
 class TypeEnum extends Type {
 	constructor(typeId, typeName, enumList) {
