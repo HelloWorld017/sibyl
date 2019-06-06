@@ -66,7 +66,7 @@ class CommandQueryGather extends CommandQuery {
 		}
 
 		let newText = text.replace(partyListRegex, '').replace(partyNumberRegex, '');
-		newText = `파티원 모집중 (${partyList.length}/${maxUser})` + newText + '파티원: ' + partyList.join(',');
+		newText = `파티원 모집중 (${partyList.length}/${maxUser})` + newText + '파티원: ' + partyList.join(', ');
 
 		await this.bot.fetch('editMessageText', {
 			chat_id: callback_query.message.chat.id,
