@@ -6,6 +6,11 @@ class CommandGather extends Command {
 	}
 
 	async doExecute({People}, message, rawQuery) {
+		if(!People) {
+			await this.bot.sendHelpMessage(message.chat.id, '잘못된 사용법: \n\n');
+			return;
+		}
+
 		const chat = this.bot.getChat(message.chat.id);
 		const querySplit = rawQuery.split(' ');
 		querySplit.shift();
