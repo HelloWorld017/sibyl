@@ -44,6 +44,7 @@ class CommandGather extends Command {
 
 	getArgsDescription() {
 		return {
+			People: '모집하는 사람 수',
 			Content: '파티 목적'
 		};
 	}

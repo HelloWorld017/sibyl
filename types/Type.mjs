@@ -9,7 +9,7 @@ class Type {
 	}
 
 	getInformation() {
-		return this.typeName;
+		return this.name;
 	}
 }
 
