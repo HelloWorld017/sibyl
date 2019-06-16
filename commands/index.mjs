@@ -1,4 +1,5 @@
 import CommandCreateRule from "./CommandCreateRule.mjs";
+import CommandDeleteMessage from "./CommandDeleteMessage.mjs";
 import CommandDeleteRule from "./CommandDeleteRule.mjs";
 import CommandGather from "./CommandGather.mjs";
 import CommandGetRule from "./CommandGetRule.mjs";
@@ -14,6 +15,7 @@ import CommandUser from "./CommandUser.mjs";
 
 export default bot => [
 	CommandCreateRule,
+	CommandDeleteMessage,
 	CommandDeleteRule,
 	CommandGather,
 	CommandGetRule,
