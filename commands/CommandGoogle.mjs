@@ -20,7 +20,7 @@ class CommandGoogle extends Command {
 			return;
 		}
 
-		const escapedQuery = rawQuery.replace('<', '&gt;').replace('>', '&lt;');
+		const escapedQuery = rawQuery.replace(/</g, '&gt;').replace(/>/g, '&lt;');
 
 		let result = `<a href="https://www.google.com/search?q=${encodeURIComponent(rawQuery)}">` +
 			`${escapedQuery}` +
