@@ -1,12 +1,12 @@
 import CommandQuery from "./CommandQuery.mjs";
 import CommandSimpleVote from "./CommandSimpleVote.mjs";
 
-class CommandQuerySimpleVote extends CommandQuery {
+class CommandQuerySimpleVoteCancel extends CommandQuery {
 	constructor(bot) {
-		super(bot, "간단투표참가", ['SimvoteId', 'OptionId']);
+		super(bot, "간단투표취소", ['SimvoteId']);
 	}
 
-	async doExecute({OptionId, SimvoteId}, callback_query) {
+	async doExecute({SimvoteId}, callback_query) {
 		const queryId = callback_query.id;
 		const chat = this.bot.getChat(callback_query.message.chat.id);
 		if(!chat.config.simvote) chat.config.simvote = [];
@@ -31,31 +31,9 @@ class CommandQuerySimpleVote extends CommandQuery {
 			});
 		}
 
-		const votedOpt = vote.options.filter(v => v.voters.includes(username));
-		const votedAll = votedOpt.length >= vote.multivote;
-
-		const votingOpt = vote.options[OptionId];
-		if(!votingOpt) {
-			await this.bot.fetch('answerCallbackQuery', {
-				callback_query_id: queryId,
-				text: '투표하려는 옵션이 사라졌습니다!'
-			});
-			return;
-		}
-
-		if(!votingOpt.voters.includes(username)) {
-			if(votedAll) {
-				await this.bot.fetch('answerCallbackQuery', {
-					callback_query_id: queryId,
-					text: '이미 전부 투표하셨습니다: ' + votedOpt.map(v => v.emoji).join(' ')
-				});
-				return;
-			}
-
-			votingOpt.voters.push(username);
-		} else {
-			votingOpt.voters = votingOpt.voters.filter(v => v !== username);
-		}
+		vote.options.forEach(option => {
+			option.voters = option.voters.filter(v => v !== username);
+		});
 
 		await chat.save();
 
@@ -68,9 +46,9 @@ class CommandQuerySimpleVote extends CommandQuery {
 
 		await this.bot.fetch('answerCallbackQuery', {
 			callback_query_id: queryId,
-			text: '성공적으로 투표했습니다!'
+			text: '성공적으로 취소했습니다.'
 		});
 	}
 }
 
-export default CommandQuerySimpleVote;
+export default CommandQuerySimpleVoteCancel;

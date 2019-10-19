@@ -12,6 +12,7 @@ import CommandQueryGather from "./CommandQueryGather.mjs";
 import CommandQueryMoveVote from "./CommandQueryMoveVote.mjs";
 import CommandQuerySimpleVote from "./CommandQuerySimpleVote.mjs";
 import CommandQuerySimpleVoters from "./CommandQuerySimpleVoters.mjs";
+import CommandQuerySimpleVoteCancel from "./CommandQuerySimpleVoteCancel.mjs";
 import CommandQueryVote from "./CommandQueryVote.mjs";
 import CommandSimpleVote from "./CommandSimpleVote.mjs";
 import CommandUser from "./CommandUser.mjs";
@@ -31,6 +32,7 @@ export default bot => [
 	CommandQueryMoveVote,
 	CommandQuerySimpleVote,
 	CommandQuerySimpleVoters,
+	CommandQuerySimpleVoteCancel,
 	CommandQueryVote,
 	CommandSimpleVote,
 	CommandUser

@@ -1,13 +1,13 @@
 import CommandQuery from "./CommandQuery.mjs";
 
-class CommandQuerySimpleVoters {
+class CommandQuerySimpleVoters extends CommandQuery {
 	constructor(bot) {
 		super(bot, "간단투표인원", ['SimvoteId']);
 	}
 
 	async doExecute({SimvoteId}, callback_query) {
 		const queryId = callback_query.id;
-		const chat = this.bot.getChat(message.chat.id);
+		const chat = this.bot.getChat(callback_query.message.chat.id);
 		if(!chat.config.simvote) chat.config.simvote = [];
 
 		const vote = chat.config.simvote.find(vote => vote.id === SimvoteId);
@@ -31,7 +31,7 @@ class CommandQuerySimpleVoters {
 
 		await this.bot.sendHtml(
 			`#투표_${SimvoteId} 참가인원\n\n` +
-			vote.options.map(v => `${v.emoji} ${v.voters.join(', ')}`).join('\n'),
+			vote.options.map(v => `${v.emoji} ${v.voters.map(v => `@${v}`).join(', ')}`).join('\n'),
 
 			callback_query.message.chat.id
 		);
