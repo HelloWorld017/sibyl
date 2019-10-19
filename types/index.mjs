@@ -20,5 +20,9 @@ export default {
 	School: new TypeString('School', '학교명'),
 	SchoolId: new TypeString('SchoolId', '학교ID'),
 	Content: new TypeString('Content', '내용'),
-	People: new TypeUInteger('People', '최대인원')
+	People: new TypeUInteger('People', '최대인원'),
+	Multivote: new TypeUInteger('Multivote', '최대동시투표'),
+	OptionId: new TypeUInteger('OptionId', '간단투표옵션ID'),
+	SimvoteId: new TypeString('Simvote', '간단투표ID'),
+	Anonymous: new TypeEnum('Anonymous', '익명성', ['공개', '익명'])
 };

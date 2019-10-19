@@ -10,7 +10,10 @@ import CommandHelp from "./CommandHelp.mjs";
 import CommandInfo from "./CommandInfo.mjs";
 import CommandQueryGather from "./CommandQueryGather.mjs";
 import CommandQueryMoveVote from "./CommandQueryMoveVote.mjs";
+import CommandQuerySimpleVote from "./CommandQuerySimpleVote.mjs";
+import CommandQuerySimpleVoters from "./CommandQuerySimpleVoters.mjs";
 import CommandQueryVote from "./CommandQueryVote.mjs";
+import CommandSimpleVote from "./CommandSimpleVote.mjs";
 import CommandUser from "./CommandUser.mjs";
 
 export default bot => [
@@ -26,6 +29,9 @@ export default bot => [
 	CommandInfo,
 	CommandQueryGather,
 	CommandQueryMoveVote,
+	CommandQuerySimpleVote,
+	CommandQuerySimpleVoters,
 	CommandQueryVote,
+	CommandSimpleVote,
 	CommandUser
 ].map(ClassVariable => new ClassVariable(bot));

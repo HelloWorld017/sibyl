@@ -139,7 +139,7 @@ class Chat {
 		chat.tempRules = exportData.tempRules.map(v => Rule.importFrom(bot, v));
 		chat.noTemp = exportData.noTemp.map(v => Rule.importFrom(bot, v));
 		chat.users = exportData.users;
-		chat.config = exportData.config;
+		chat.config = exportData.config || {};
 
 		for(let vote of exportData.votes) {
 			chat.votes.push(await Vote.importFrom(bot, vote));
