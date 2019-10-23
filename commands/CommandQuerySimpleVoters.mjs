@@ -29,9 +29,12 @@ class CommandQuerySimpleVoters extends CommandQuery {
 			return;
 		}
 
+		const total = [...new Set(vote.options.flatMap(v => v.voters))];
+
 		await this.bot.sendHtml(
-			`#투표_${SimvoteId} 참가인원\n\n` +
-			vote.options.map(v => `${v.emoji} ${v.voters.map(v => `@${v}`).join(', ')}`).join('\n'),
+			`#투표_${SimvoteId} 참가인원 (${total.length})\n` +
+			`${total.join(', ')}\n\n` +
+			vote.options.map(v => `${v.emoji} ${v.voters.join(', ')}`).join('\n'),
 
 			callback_query.message.chat.id
 		);
