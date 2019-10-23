@@ -36,8 +36,8 @@ class CommandQuerySimpleVoters extends CommandQuery {
 				const username =
 					(
 						chatUser ?
-						`${chatUser.first_name}${chatUser.last_name ? ` ${chatUser.last_name}` : ''}` :
-						`@{v}`
+						`${chatUser.last_name ? `${chatUser.last_name} ` : ''}${chatUser.first_name}` :
+						`@${v}`
 					)
 					.replace(/</g, '&gt;')
 					.replace(/>/g, '&lt;');
