@@ -29,15 +29,45 @@ class CommandQuerySimpleVoters extends CommandQuery {
 			return;
 		}
 
+		let textify = users => users
+			.sort()
+			.map(v => `<a href="https://t.me/${encodeURIComponent(v)}">@${v}</a>`)
+			.join(', ');
+
 		const total = [...new Set(vote.options.flatMap(v => v.voters))];
 
-		await this.bot.sendHtml(
-			`#투표_${SimvoteId} 참가인원 (${total.length})\n` +
-			`${total.join(', ')}\n\n` +
-			vote.options.map(v => `${v.emoji} ${v.voters.join(', ')}`).join('\n'),
+		const send = async (parseMode='HTML') => {
+			const message =
+				`#투표_${SimvoteId} 참가인원 (${total.length})\n` +
+				`${textify(total)}\n\n` +
+				vote.options.map(v => `${v.emoji}(${v.voters.length}) ${textify(v.voters)}`).join('\n');
 
-			callback_query.message.chat.id
-		);
+			await this.bot.fetch(
+				'sendMessage',
+				{
+					text: message,
+					chat_id: callback_query.message.chat.id,
+					disable_web_page_preview: true,
+					...(parseMode ? {parse_mode: parseMode} : {})
+				},
+				true
+			);
+		};
+
+		try {
+			await send();
+		} catch(e) {
+			textify = users => users.sort().join(', ');
+			try {
+				await send(null);
+			} catch(e) {
+				await this.bot.fetch('answerCallbackQuery', {
+					callback_query_id: queryId,
+					text: '보내기에 실패했습니다 T_T'
+				});
+				return;
+			}
+		}
 
 		await this.bot.fetch('answerCallbackQuery', {
 			callback_query_id: queryId
