@@ -72,20 +72,30 @@ class Chat {
 
 		const handleRule = isTempRule => v => {
 			if(v.test(message)) {
-				if(!this.users[message.from.id])
-					this.users[message.from.id] = {
-						coefficient: 0,
-						username: message.from.username,
-						first_name: message.from.first_name,
-						last_name: message.from.last_name
-					};
-
 				if(!isTempRule) this.users[message.from.id].coefficient += v.coefficient;
 				if(v.action === '삭제') deleteMsg = true;
 
 				ruleHandled = true;
 			}
 		};
+
+		if(!this.users[message.from.id]) {
+			this.users[message.from.id] = {
+				coefficient: 0,
+				username: message.from.username,
+				first_name: message.from.first_name,
+				last_name: message.from.last_name
+			};
+			ruleHandled = true;
+		}
+
+		const user = this.users[message.from.id];
+		['first_name', 'last_name', 'username'].forEach(k => {
+			if(user[k] !== message.from[k]) {
+				user[k] = message.from[k];
+				ruleHandled = true;
+			}
+		});
 
 		this.tempRules.forEach(handleRule(true));
 		this.rules.forEach(v => {

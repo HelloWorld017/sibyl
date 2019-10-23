@@ -31,7 +31,19 @@ class CommandQuerySimpleVoters extends CommandQuery {
 
 		let textify = users => users
 			.sort()
-			.map(v => `<a href="https://t.me/${encodeURIComponent(v)}">@${v}</a>`)
+			.map(v => {
+				const chatUser = Object.values(chat.users).find(user => user.username === v);
+				const username =
+					(
+						chatUser ?
+						`${chatUser.first_name}${chatUser.last_name ? ` ${chatUser.last_name}` : ''}` :
+						`@{v}`
+					)
+					.replace(/</g, '&gt;')
+					.replace(/>/g, '&lt;');
+
+				return `<a href="https://t.me/${encodeURIComponent(v)}">${username}</a>`;
+			})
 			.join(', ');
 
 		const total = [...new Set(vote.options.flatMap(v => v.voters))];
@@ -40,7 +52,7 @@ class CommandQuerySimpleVoters extends CommandQuery {
 			const message =
 				`#투표_${SimvoteId} 참가인원 (${total.length})\n` +
 				`${textify(total)}\n\n` +
-				vote.options.map(v => `${v.emoji}(${v.voters.length}) ${textify(v.voters)}`).join('\n');
+				vote.options.map(v => `${v.emoji}(${v.voters.length}명) ${textify(v.voters)}`).join('\n');
 
 			await this.bot.fetch(
 				'sendMessage',
@@ -57,6 +69,7 @@ class CommandQuerySimpleVoters extends CommandQuery {
 		try {
 			await send();
 		} catch(e) {
+			console.log(e);
 			textify = users => users.sort().join(', ');
 			try {
 				await send(null);
