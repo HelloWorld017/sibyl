@@ -30,20 +30,21 @@ class CommandQuerySimpleVoters extends CommandQuery {
 		}
 
 		let textify = users => users
-			.sort()
 			.map(v => {
 				const chatUser = Object.values(chat.users).find(user => user.username === v);
-				const username =
+				return [
+					v,
 					(
 						chatUser ?
 						`${chatUser.last_name ? `${chatUser.last_name} ` : ''}${chatUser.first_name}` :
 						`@${v}`
 					)
 					.replace(/</g, '&gt;')
-					.replace(/>/g, '&lt;');
-
-				return `<a href="https://t.me/${encodeURIComponent(v)}">${username}</a>`;
+					.replace(/>/g, '&lt;')
+				];
 			})
+			.sort(([v1, u1], [v2, u2]) => u1.localeCompare(u2))
+			.map(([v, username]) => `<a href="https://t.me/${encodeURIComponent(v)}">${username}</a>`)
 			.join(', ');
 
 		const total = [...new Set(vote.options.flatMap(v => v.voters))];
